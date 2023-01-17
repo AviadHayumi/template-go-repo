@@ -1,0 +1,7 @@
+services:
+  example-service:
+    image: example-repo/example-service
+    build:
+      context: ../../
+      dockerfile: build/dockerfiles/example-service/Dockerfile
+      target: runner

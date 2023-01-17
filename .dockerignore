@@ -1,0 +1,9 @@
+# Ignore all files in the root directory
+*
+
+# But include the application source code
+!cmd/
+!pkg/
+!internal/
+!vendor
+!go.*
