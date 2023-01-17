@@ -186,7 +186,7 @@ clean:
 }
 
 func createDockerfile(serviceName string) error {
-	makefileTemplate := `FROM golang:alpine AS builder
+	dockerfileTemplate := `FROM golang:alpine AS builder
 WORKDIR /build
 COPY . .
 RUN go build -o /usr/bin/example-service ./cmd/example-service/main.go
@@ -198,14 +198,14 @@ FROM alpine as runner
 COPY --chown=0:0 --from=builder /usr/bin/example-service /usr/bin
 ENTRYPOINT exec example-service
 `
-	makefileContent := strings.Replace(makefileTemplate, "example-service", serviceName, -1)
+	dockerfileContent := strings.Replace(dockerfileTemplate, "example-service", serviceName, -1)
 
 	err := os.MkdirAll("build/dockerfiles/"+serviceName, os.ModePerm)
 	if err != nil {
 		return err
 	}
 	// save content to file
-	err = os.WriteFile(fmt.Sprintf("build/dockerfiles/%v/Dockerfile", serviceName), []byte(makefileContent), 0666)
+	err = os.WriteFile(fmt.Sprintf("build/dockerfiles/%v/Dockerfile", serviceName), []byte(dockerfileContent), 0666)
 	return err
 }
 
