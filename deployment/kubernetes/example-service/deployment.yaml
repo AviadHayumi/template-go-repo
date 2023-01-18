@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: example-service
+  name: example-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: example-service
+    spec:
+      containers:
+      - image: example-repo/example-service
+        imagePullPolicy: IfNotPresent
+        name: example-service
+        resources: {}
+status: {}
