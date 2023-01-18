@@ -6,6 +6,7 @@ The service includes a script that can be run to create new services, which will
 - Makefile
 - Github Actions
 - Go entrypoint under the "cmd" directory. 
+- kubernetes basic deployment & service components
 
 To create a new service, run the following command:
 ```bash
