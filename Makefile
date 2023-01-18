@@ -18,3 +18,8 @@ run-compose:
 
 run-kubernetes:
 	kubectl apply -f build/kubernetes
+
+run-kubernetes-minikube:
+	eval $$(minikube docker-env)
+	make build tag VERSION=latest
+	kubectl apply -f build/kubernetes
