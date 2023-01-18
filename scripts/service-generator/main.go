@@ -46,6 +46,7 @@ func deleteService(serviceName string) {
 	os.RemoveAll(fmt.Sprintf("cmd/%v", serviceName))
 	os.RemoveAll("build/makefiles/" + serviceName)
 	os.RemoveAll("build/dockerfiles/" + serviceName)
+	os.RemoveAll("deployment/kubernetes/" + serviceName)
 }
 
 func isServiceAlreadyExists(serviceName string) bool {
@@ -74,9 +75,69 @@ func createService(serviceName string) error {
 	if err := createGoEntrypoint(serviceName); err != nil {
 		return err
 	}
+	if err := createKubernetes(serviceName); err != nil {
+		return err
+	}
 
 	//AddToCompose(serviceName)
 	return nil
+}
+
+func createKubernetes(serviceName string) error {
+	deploymentTemplate := `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: example-service
+  name: example-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: example-service
+    spec:
+      containers:
+      - image: example-repo/example-service
+        imagePullPolicy: IfNotPresent
+        name: example-service
+        resources: {}
+status: {}
+`
+	svcTemplate := `apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: example-service
+  name: example-service
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: example-service
+status:
+  loadBalancer: {}
+`
+	deploymentContent := strings.Replace(deploymentTemplate, "example-service", serviceName, -1)
+	svcContent := strings.Replace(svcTemplate, "example-service", serviceName, -1)
+
+	err := os.MkdirAll(fmt.Sprintf("deployment/kubernetes/%v", serviceName), os.ModePerm)
+	if err != nil {
+		return err
+	}
+	// save content to file
+	err = os.WriteFile(fmt.Sprintf("deployment/kubernetes/%v/deployment.yaml", serviceName), []byte(deploymentContent), 0666)
+	err = os.WriteFile(fmt.Sprintf("deployment/kubernetes/%v/service.yaml", serviceName), []byte(svcContent), 0666)
+	return err
 }
 
 func createGoEntrypoint(serviceName string) error {
